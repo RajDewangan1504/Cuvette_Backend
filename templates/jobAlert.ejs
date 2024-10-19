@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Alert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333333;
+        }
+        .job-details {
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            color: #999999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>New Job Alert: <%= title %></h2>
+        <p>Hello,</p>
+        <p>We are excited to inform you about a new job opportunity at <strong><%= companyName %></strong>.</p>
+
+        <div class="job-details">
+            <p><strong>Job Title:</strong> <%= title %></p>
+            <p><strong>Job Description:</strong> <%= description %></p>
+            <p><strong>Experience Level:</strong> <%= experienceLevel %></p>
+            <p><strong>Application Deadline:</strong> <%= endDate %></p>
+        </div>
+
+        <p>If you're interested, please apply as soon as possible!</p>
+
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>
