@@ -7,7 +7,7 @@ Here is a well-structured, comprehensive API documentation that covers your **Au
 ## **Base URL**
 
 ```
-https://your-api-base-url.com/api
+https://your-api-base-url.com/api/auth
 ```
 
 ---
@@ -16,7 +16,7 @@ https://your-api-base-url.com/api
 
 ### 1. **Register a New Company**
 
-- **Endpoint:** `POST /auth/register`
+- **Endpoint:** `POST /register`
   
 - **Description:** This endpoint is used to register a new company.
 
@@ -60,7 +60,7 @@ https://your-api-base-url.com/api
 
 ### 2. **Verify Email**
 
-- **Endpoint:** `POST /auth/verify-email`
+- **Endpoint:** `POST /verify-email`
 
 - **Description:** This endpoint is used to verify a company's email using the OTP sent to their email.
 
@@ -100,7 +100,7 @@ https://your-api-base-url.com/api
 
 ### 3. **Verify Phone**
 
-- **Endpoint:** `POST /auth/verify-phone`
+- **Endpoint:** `POST /verify-phone`
 
 - **Description:** This endpoint is used to verify a company's phone number using the OTP sent to their mobile.
 
@@ -140,7 +140,7 @@ https://your-api-base-url.com/api
 
 ### 4. **Login a Company**
 
-- **Endpoint:** `POST /auth/login`
+- **Endpoint:** `POST /login`
 
 - **Description:** This endpoint is used for companies to log in with their email and password.
 
@@ -193,7 +193,7 @@ https://your-api-base-url.com/api
 
 ### 5. **Logout a Company**
 
-- **Endpoint:** `POST /auth/logout`
+- **Endpoint:** `POST /logout`
 
 - **Description:** This endpoint is used to log out a company by clearing the JWT cookie.
 
