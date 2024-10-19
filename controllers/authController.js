@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const config = require("../config");
 const { sendSms } = require("../utils/sms");
 const { sendVerificationEmail } = require("../utils/email"); // Updated import
+const admin = require("../firebase");
 
 // Register a new company
 exports.registerCompany = async (req, res) => {
@@ -12,7 +13,9 @@ exports.registerCompany = async (req, res) => {
 
   try {
     // Check if the email or mobile already exists
-    const existingCompany = await Company.findOne({ $or: [{ email }, { mobile }] });
+    const existingCompany = await Company.findOne({
+      $or: [{ email }, { mobile }],
+    });
     if (existingCompany) {
       return res.status(400).json({ error: "Email or mobile already in use" });
     }
@@ -52,19 +55,25 @@ exports.registerCompany = async (req, res) => {
     });
   } catch (error) {
     console.error("Error registering company:", error.message);
-    res.status(500).json({ error: "Internal server error during registration" });
+    res
+      .status(500)
+      .json({ error: "Internal server error during registration" });
   }
 };
-
 
 // Verify Email
 exports.verifyEmail = async (req, res) => {
   const { email, code } = req.body;
 
   try {
-    const company = await Company.findOne({ email, emailVerificationCode: code });
+    const company = await Company.findOne({
+      email,
+      emailVerificationCode: code,
+    });
     if (!company) {
-      return res.status(400).json({ message: "Invalid verification code or phone number" });
+      return res
+        .status(400)
+        .json({ message: "Invalid verification code or phone number" });
     }
 
     company.isEmailVerified = true;
@@ -74,24 +83,33 @@ exports.verifyEmail = async (req, res) => {
     res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
     console.error("Error verifying email:", error.message);
-    res.status(500).json({ error: "Internal server error during email verification" });
+    res
+      .status(500)
+      .json({ error: "Internal server error during email verification" });
   }
 };
 
 
-
-// Verify phone
+// Verify phone using Firebase OTP
 exports.verifyPhone = async (req, res) => {
-  const { mobile, code } = req.body;
+  const { idToken } = req.body; // The Firebase ID token generated after OTP verification on the client-side
 
   try {
-    const company = await Company.findOne({ mobile, phoneVerificationCode: code });
+    // Verify the ID token using Firebase Admin SDK
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+    // Extract the phone number from the decoded token
+    const phoneNumber = decodedToken.phone_number;
+
+    // Check if the company exists with the verified phone number
+    const company = await Company.findOne({ mobile: phoneNumber });
     if (!company) {
-      return res.status(400).json({ message: "Invalid verification code or phone number" });
+      return res.status(400).json({ message: "Phone number not found" });
     }
 
+    // Mark the phone as verified and save the company
     company.isPhoneVerified = true;
-    company.phoneVerificationCode = null;
+    company.phoneVerificationCode = null; // Clear any old verification codes if they exist
     await company.save();
 
     res.status(200).json({ message: "Phone verified successfully" });
@@ -118,14 +136,20 @@ exports.loginCompany = async (req, res) => {
 
     // Check if the email and phone are verified
     if (!company.isEmailVerified) {
-      return res.status(403).json({ message: "Please verify your email first" });
+      return res
+        .status(403)
+        .json({ message: "Please verify your email first" });
     }
     if (!company.isPhoneVerified) {
-      return res.status(403).json({ message: "Please verify your phone first" });
+      return res
+        .status(403)
+        .json({ message: "Please verify your phone first" });
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: company._id }, config.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: company._id }, config.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     // Set token in a secure HTTP-only cookie
     res.cookie("token", token, {
