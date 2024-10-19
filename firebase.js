@@ -1,10 +1,16 @@
 // firebase.js
 const admin = require('firebase-admin');
-const serviceAccount = require('./hello-95300-firebase-adminsdk-zmndk-8a24f08345.json'); // Adjust this path
+const path = require('path');
+const admin = require('firebase-admin');
+require('dotenv').config(); // Make sure to load environment variables
+
+// Resolve the relative path to an absolute path
+const serviceAccountPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
+// Initialize Firebase Admin SDK
+const serviceAccount = require(serviceAccountPath);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-//   databaseURL: 'https://<your-project-id>.firebaseio.com' // Replace with your project URL
 });
 
-module.exports = admin;
