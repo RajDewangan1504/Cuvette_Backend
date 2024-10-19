@@ -17,6 +17,11 @@ app.use(cookieParser()); // Use cookie-parser middleware
 // Enable CORS for all origins
 app.use(cors()); // This allows all origins to access the API
 
+// Home route
+app.get('/', (req, res) => {
+    res.status(200).send('Welcome to the API. Navigate to /api/auth for authentication and /api/jobs for job management.');
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
