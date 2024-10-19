@@ -3,12 +3,12 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const config = require("../config");
-const { sendEmail } = require("../utils/email");
 const { sendSms } = require("../utils/sms");
+const { sendVerificationEmail } = require("../utils/email"); // Updated import
 
 // Register a new company
 exports.registerCompany = async (req, res) => {
-  const { name, email, mobile, password,companyName, employeeSize } = req.body;
+  const { name, email, mobile, password, companyName, employeeSize } = req.body;
 
   try {
     // Check if the email or mobile already exists
@@ -19,9 +19,9 @@ exports.registerCompany = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate verification token for email and code for phone
-    const emailVerificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
-    const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+    // Generate OTP for email and phone verification
+    const emailVerificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+    const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
 
     const company = await Company.create({
       name,
@@ -30,19 +30,22 @@ exports.registerCompany = async (req, res) => {
       email,
       mobile,
       password: hashedPassword,
-      emailVerificationToken,
+      emailVerificationCode,
       phoneVerificationCode,
     });
 
     // Send verification email
-    await sendEmail({
+    await sendVerificationEmail({
       to: email,
       subject: "Verify your email",
-      text: `Your OTP for email verification ${emailVerificationCode}`,
+      templateData: {
+        name,
+        email,
+        companyName,
+        otp: emailVerificationCode,
+        year: new Date().getFullYear(),
+      },
     });
-
-    // Send SMS with verification code
-    // await sendSms(mobile, `Your phone verification code is: ${phoneVerificationCode}`);
 
     res.status(201).json({
       message: "Company registered. Please verify your email and phone.",
@@ -52,6 +55,7 @@ exports.registerCompany = async (req, res) => {
     res.status(500).json({ error: "Internal server error during registration" });
   }
 };
+
 
 // Verify Email
 exports.verifyEmail = async (req, res) => {
